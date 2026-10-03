@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Papara Süper Lig</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#111827;
+  color:white
+}
+header{
+  text-align:center;
+  padding:28px 15px;
+  background:linear-gradient(135deg,#17233b,#263b62)
+}
+header .cup{font-size:42px}
+header h1{margin:5px 0;font-size:28px}
+header p{margin:5px;color:#aebbd0}
+
+nav{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:12px;
+  background:#182235
+}
+nav button{
+  border:0;
+  padding:11px 15px;
+  border-radius:9px;
+  background:#303d56;
+  color:white;
+  font-weight:bold;
+  white-space:nowrap
+}
+nav button.active{background:#426bd3}
+
+main{max-width:850px;margin:auto;padding:18px 12px 50px}
+h2{margin:8px 0 20px}
+
+.week{
+  margin-bottom:25px;
+  border-radius:12px;
+  overflow:hidden
+}
+.week-title{
+  background:#293852;
+  padding:14px;
+  font-size:18px;
+  font-weight:bold
+}
+.match{
+  display:grid;
+  grid-template-columns:1fr 75px 1fr;
+  align-items:center;
+  gap:8px;
+  padding:16px 12px;
+  background:#1c273b;
+  border-top:1px solid #303d53
+}
+.home{text-align:right}
+.team{font-weight:bold;font-size:14px}
+.score{text-align:center;font-weight:bold}
+.pending{font-size:11px;color:#77859d}
+
+.table-box{
+  overflow-x:auto;
+  border-radius:12px;
+  background:#1c273b
+}
+table{
+  width:100%;
+  min-width:700px;
+  border-collapse:collapse
+}
+th,td{
+  padding:12px 8px;
+  text-align:center;
+  border-bottom:1px solid #303d53
+}
+th{background:#293852;color:#b8c4d8;font-size:12px}
+td:nth-child(2){
+  text-align:left;
+  font-weight:bold
+}
+.points{font-size:17px;font-weight:bold}
+.rank{color:#9aa8bd;font-weight:bold}
+
+.card{
+  background:#1c273b;
+  padding:17px;
+  margin-bottom:10px;
+  border-radius:12px
+}
+
+.hidden{display:none}
+
+footer{
+  text-align:center;
+  padding:25px;
+  color:#697890;
+  font-size:12px
+}
+
+@media(max-width:600px){
+  .team{font-size:12px}
+  .match{grid-template-columns:1fr 65px 1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="cup">🏆</div>
+  <h1>PAPARA SÜPER LİG</h1>
+  <p>2026 Sezonu</p>
+</header>
+
+<nav>
+  <button class="active" onclick="page('fixture',this)">Fikstür</button>
+  <button onclick="page('table',this)">Puan Durumu</button>
+  <button onclick="page('results',this)">Maç Sonuçları</button>
+  <button onclick="page('teams',this)">Takımlar</button>
+</nav>
+
+<main>
+
+<section id="fixture">
+<h2>📅 Fikstür</h2>
+<div id="fixtures"></div>
+</section>
+
+<section id="table" class="hidden">
+<h2>📊 Puan Durumu</h2>
+<div class="table-box">
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Takım</th>
+<th>O</th>
+<th>G</th>
+<th>B</th>
+<th>M</th>
+<th>AG</th>
+<th>YG</th>
+<th>AV</th>
+<th>P</th>
+</tr>
+</thead>
+<tbody id="standings"></tbody>
+</table>
+</div>
+</section>
+
+<section id="results" class="hidden">
+<h2>⚽ Maç Sonuçları</h2>
+<div id="resultsList"></div>
+</section>
+
+<section id="teams" class="hidden">
+<h2>👥 Takımlar</h2>
+<div id="teamList"></div>
+</section>
+
+</main>
+
+<footer>Papara Süper Lig © 2026</footer>
+
+<script>
+
+const teams=[
+"Mardin 1969",
+"Artukluspor",
+"Çine Madranspor",
+"Kütahyaspor",
+"Karpuzlu FK",
+"Germencikspor",
+"Fenerbahçe",
+"Aydınspor 1966",
+"Güzide Gebzespor",
+"Osmangazi Bld"
+];
+
+/* İLK DEVRE */
+
+const firstRound=[
+
+[
+["Osmangazi Bld","Mardin 1969",0,3],
+["Artukluspor","Kütahyaspor",5,6],
+["Fenerbahçe","Germencikspor",1,2],
+["Güzide Gebzespor","Çine Madranspor",0,3],
+["Aydınspor 1966","Karpuzlu FK",2,4]
+],
+
+[
+["Fenerbahçe","Mardin 1969",3,4],
+["Osmangazi Bld","Karpuzlu FK",2,7],
+["Aydınspor 1966","Artukluspor",3,7],
+["Güzide Gebzespor","Kütahyaspor",0,3],
+["Germencikspor","Çine Madranspor",2,6]
+],
+
+[
+["Fenerbahçe","Çine Madranspor",5,7],
+["Mardin 1969","Karpuzlu FK",3,3],
+["Germencikspor","Kütahyaspor",4,5],
+["Osmangazi Bld","Artukluspor",0,3],
+["Güzide Gebzespor","Aydınspor 1966",0,3]
+],
+
+[
+["Çine Madranspor","Kütahyaspor",4,1],
+["Artukluspor","Mardin 1969",5,6],
+["Fenerbahçe","Karpuzlu FK",2,3],
+["Germencikspor","Aydınspor 1966",4,6],
+["Osmangazi Bld","Güzide Gebzespor",0,0]
+],
+
+[
+["Çine Madranspor","Aydınspor 1966",2,3],
+["Fenerbahçe","Kütahyaspor",6,4],
+["Karpuzlu FK","Artukluspor",2,3],
+["Mardin 1969","Güzide Gebzespor",3,0],
+["Osmangazi Bld","Germencikspor",0,3]
+],
+
+[
+["Fenerbahçe","Artukluspor",2,7],
+["Kütahyaspor","Aydınspor 1966",4,3],
+["Karpuzlu FK","Güzide Gebzespor",3,0],
+["Çine Madranspor","Osmangazi Bld",3,0],
+["Mardin 1969","Germencikspor",5,6]
+],
+
+[
+["Fenerbahçe","Aydınspor 1966",8,2],
+["Artukluspor","Güzide Gebzespor",3,0],
+["Kütahyaspor","Osmangazi Bld",3,0],
+["Karpuzlu FK","Germencikspor",7,4],
+["Çine Madranspor","Mardin 1969",1,3]
+],
+
+[
+["Fenerbahçe","Güzide Gebzespor",3,0],
+["Aydınspor 1966","Osmangazi Bld",3,0],
+["Artukluspor","Germencikspor",4,4],
+["Kütahyaspor","Mardin 1969",3,6],
+["Karpuzlu FK","Çine Madranspor",5,7]
+],
+
+[
+["Fenerbahçe","Osmangazi Bld",3,0],
+["Güzide Gebzespor","Germencikspor",0,3],
+["Aydınspor 1966","Mardin 1969",5,10],
+["Artukluspor","Çine Madranspor",6,3],
+["Kütahyaspor","Karpuzlu FK",7,2]
+]
+
+];
+
+/* FİKSTÜRÜ OLUŞTUR */
+
+let matches=[];
+
+firstRound.forEach((week,index)=>{
+  week.forEach(m=>{
+    matches.push({
+      week:index+1,
+      home:m[0],
+      away:m[1],
+      hs:m[2],
+      as:m[3]
+    });
+  });
+});
+
+/* 10-18. HAFTALAR: EV/DEPLASMAN TERS */
+
+firstRound.forEach((week,index)=>{
+
+  week.forEach(m=>{
+
+    let hs=null;
+    let as=null;
+
+    /* 10. hafta oynananlar */
+    if(index===0){
+      if(m[0]==="Osmangazi Bld" && m[1]==="Mardin 1969"){
+        hs=0; as=3;
+      }
+
+      if(m[0]==="Fenerbahçe" && m[1]==="Germencikspor"){
+        hs=2; as=8;
+      }
+
+      if(m[0]==="Güzide Gebzespor" && m[1]==="Çine Madranspor"){
+        hs=0; as=3;
+      }
+    }
+
+    matches.push({
+      week:index+10,
+      home:m[1],
+      away:m[0],
+      hs:as,
+      as:hs
+    });
+
+  });
+
+});
+
+/* PUAN DURUMU */
+
+function calculate(){
+
+  let table={};
+
+  teams.forEach(t=>{
+    table[t]={
+      name:t,
+      o:0,g:0,b:0,m:0,
+      ag:0,yg:0,p:0
+    };
+  });
+
+  matches.forEach(x=>{
+
+    if(x.hs===null || x.as===null)return;
+
+    let h=table[x.home];
+    let a=table[x.away];
+
+    h.o++;
+    a.o++;
+
+    h.ag+=x.hs;
+    h.yg+=x.as;
+
+    a.ag+=x.as;
+    a.yg+=x.hs;
+
+    if(x.hs>x.as){
+      h.g++;
+      a.m++;
+      h.p+=3;
+    }
+    else if(x.hs<x.as){
+      a.g++;
+      h.m++;
+      a.p+=3;
+    }
+    else{
+      h.b++;
+      a.b++;
+      h.p++;
+      a.p++;
+    }
+  });
+
+  return Object.values(table).sort((a,b)=>{
+
+    let avA=a.ag-a.yg;
+    let avB=b.ag-b.yg;
+
+    return b.p-a.p ||
+           avB-avA ||
+           b.ag-a.ag;
+
+  });
+}
+
+/* PUAN TABLOSU */
+
+function renderTable(){
+
+  let data=calculate();
+
+  document.getElementById("standings").innerHTML=
+
+  data.map((x,i)=>`
+
+    <tr>
+      <td class="rank">${i+1}</td>
+      <td>${x.name}</td>
+      <td>${x.o}</td>
+      <td>${x.g}</td>
+      <td>${x.b}</td>
+      <td>${x.m}</td>
+      <td>${x.ag}</td>
+      <td>${x.yg}</td>
+      <td>${x.ag-x.yg>0?"+":""}${x.ag-x.yg}</td>
+      <td class="points">${x.p}</td>
+    </tr>
+
+  `).join("");
+}
+
+/* MAÇ KARTI */
+
+function matchHTML(x){
+
+  let played=x.hs!==null && x.as!==null;
+
+  return `
+
+    <div class="match">
+
+      <div class="team home">
+        ${x.home}
+      </div>
+
+      <div class="score">
+
+        ${
+          played
+          ? `${x.hs} - ${x.as}`
+          : `<span class="pending">Oynanmadı</span>`
+        }
+
+      </div>
+
+      <div class="team">
+        ${x.away}
+      </div>
+
+    </div>
+
+  `;
+}
+
+/* FİKSTÜR */
+
+function renderFixtures(){
+
+  let html="";
+
+  for(let week=1;week<=18;week++){
+
+    let games=matches.filter(x=>x.week===week);
+
+    html+=`
+
+      <div class="week">
+
+        <div class="week-title">
+          ${week}. Hafta
+        </div>
+
+        ${games.map(matchHTML).join("")}
+
+      </div>
+
+    `;
+  }
+
+  document.getElementById("fixtures").innerHTML=html;
+}
+
+/* SONUÇLAR */
+
+function renderResults(){
+
+  let html="";
+
+  for(let week=1;week<=18;week++){
+
+    let games=matches.filter(x=>
+      x.week===week &&
+      x.hs!==null &&
+      x.as!==null
+    );
+
+    if(!games.length)continue;
+
+    html+=`
+
+      <div class="week">
+
+        <div class="week-title">
+          ${week}. Hafta
+        </div>
+
+        ${games.map(matchHTML).join("")}
+
+      </div>
+
+    `;
+  }
+
+  document.getElementById("resultsList").innerHTML=html;
+}
+
+/* TAKIMLAR */
+
+function renderTeams(){
+
+  document.getElementById("teamList").innerHTML=
+
+  teams.map((x,i)=>`
+
+    <div class="card">
+      <b>${i+1}. ${x}</b>
+      <div style="color:#8998ad;margin-top:6px">
+        Papara Süper Lig
+      </div>
+    </div>
+
+  `).join("");
+}
+
+/* MENÜ */
+
+function page(id,button){
+
+  document.querySelectorAll("main>section")
+    .forEach(x=>x.classList.add("hidden"));
+
+  document.getElementById(id)
+    .classList.remove("hidden");
+
+  document.querySelectorAll("nav button")
+    .forEach(x=>x.classList.remove("active"));
+
+  button.classList.add("active");
+}
+
+renderFixtures();
+renderTable();
+renderResults();
+renderTeams();
+
+</script>
+
+</body>
+</html>
