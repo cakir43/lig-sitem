@@ -573,7 +573,36 @@ function page(id,button){
 
   button.classList.add("active");
 }
+/* =========================
+   GÜNLÜK MAÇ SONUÇLARI
+   ========================= */
 
+const dailyResults = [
+
+  // Yeni sonuçları SADECE buraya ekle.
+  // Örnek:
+  // ["Kütahyaspor","Güzide Gebzespor",3,0],
+
+];
+
+
+/* SONUÇLARI OYNANMAMIŞ MAÇLARA İŞLE */
+
+dailyResults.forEach(r => {
+
+  let match = matches.find(x =>
+    x.home === r[0] &&
+    x.away === r[1] &&
+    x.hs === null &&
+    x.as === null
+  );
+
+  if(match){
+    match.hs = r[2];
+    match.as = r[3];
+  }
+
+});
 renderFixtures();
 renderTable();
 renderResults();
