@@ -80,10 +80,11 @@ table{
   width:100%;
   min-width:600px;
   border-collapse:collapse;
-  
+  }
+  th,td{
   padding:6px 3px;
   text-align:center;
-  border-bottom:1px solid #303d53
+  border-bottom:1px solid #303d53;
 }
 th{background:#293852;color:#b8c4d8;font-size:11px}
 td:nth-child(2){
@@ -110,23 +111,10 @@ footer{
 }
 
 @media(max-width:600px){
- table{
-  min-width:100%;
-  table-layout:fixed;
-}
+ 
 
 
-
-th,td{
-  padding:7px 2px;
-  font-size:11px;
-  overflow:hidden
-}
-  td:nth-child(2){
-  white-space:normal;
-  overflow-wrap:anywhere;
-  font-size:10px;
-}
+  
  .team{font-size:12px}
   .match{grid-template-columns:1fr 65px 1fr}
 }
