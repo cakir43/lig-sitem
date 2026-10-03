@@ -84,9 +84,19 @@ table{
     table-layout:fixed;
 }
 #penaltiesList table{
-  min-width:100%;
   width:100%;
+  min-width:0;
+  table-layout:fixed;
 }
+
+#penaltiesList th:nth-child(1),
+#penaltiesList td:nth-child(1){width:40%}
+
+#penaltiesList th:nth-child(2),
+#penaltiesList td:nth-child(2){width:25%}
+
+#penaltiesList th:nth-child(3),
+#penaltiesList td:nth-child(3){width:35%}
   th:nth-child(1),td:nth-child(1){width:40px}
 th:nth-child(2),td:nth-child(2){width:150px}
 th:nth-child(3),td:nth-child(3){width:45px}
